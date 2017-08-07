@@ -625,7 +625,7 @@ int main(int argc, char **argv){
   int name_count;
 
   int ret;
-  int i, a, c;
+  int i, a;
 
   int scroll_count;
   int scroll_length;
