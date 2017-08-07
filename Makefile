@@ -1,19 +1,39 @@
-#gmake Makefile
-EXECUTABLE = tss
+# tss Makefile
 
-SRC    = src/main.c
-CFLAGS = -Wall -ansi -pedantic -lcurses -lcrypt -s #-DBSD
-COMPILE= $(CC) $(CFLAGS)
-CC = gcc
+VERSION = 0.8.2
 
-all: $(EXECUTABLE)
+PROG = tss
+SRC = $(wildcard ./src/*.c)
+OBJ = $(SRC:.c=.o)
 
-$(EXECUTABLE): $(SRC)
-	$(CC) $(CFLAGS) -o $(EXECUTABLE) $(SRC)
+DATA = $(wildcard ./$(PROG)_art/*)
 
-%.o: %.c
-	$(COMPILE) -o $@ $<
+INSTALL = /usr/bin/install
+PREFIX ?= /usr/local
+INSTALLDIR = $(PREFIX)/bin
+DATADIR = $(PREFIX)/share/$(PROG)
+
+CFLAGS += -DDEFAULT_ASCII_DIR=\"$(DATADIR)/\" -DBSD #-DVTLOCK
+#LDFLAGS +=
+LDLIBS = -lncurses
+
+all: $(PROG) $(DATA)
+
+$(PROG): $(OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 clean:
-	-rm -f $(OBJS) $(EXECUTABLE) src/*~
-	-rm -f ./*~
+	$(RM) $(PROG)
+	$(RM) ./src/*.o
+
+install: all
+	$(INSTALL) -d $(INSTALLDIR)
+	$(INSTALL) $(PROG) $(INSTALLDIR)
+	$(INSTALL) -d $(DATADIR)
+	$(INSTALL) -m 0644 $(DATA) $(DATADIR)
+
+uninstall:
+	$(RM) $(INSTALLDIR)/$(PROG)
+	$(RM) $(foreach f,$(notdir $(DATA)),$(DATADIR)/$(f))
+
+.PHONY: all clean install uninstall
