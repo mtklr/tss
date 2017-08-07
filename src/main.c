@@ -143,7 +143,9 @@
  #define SA_RESTART     0x10000000
 #else
  #include <curses.h>
+#ifdef VTLOCK
  #include <sys/consio.h>
+#endif
 #endif
 
 #define VERSION			"0.8.2"
@@ -158,28 +160,32 @@
 
 #define UNAME			0
 #define INFO			1
-  
+
+#ifdef VTLOCK
 int lock_delay;
 int failed_logins;
 int vfd;
+#endif
 int screen_width;
 int screen_height;
 int current_color;
 
 FILE *fd_ascii;
-  
+#ifdef VTLOCK
 static char username[40];
 static char userpass[200];
-
+#endif
 char mirrorchr[2][15];
 char *scroll_buffer;
   
 glob_t list;
 
+#ifdef VTLOCK
 struct vt_mode ovtm;
 struct termios oterm;
 
 static sigset_t osig;
+#endif
 
 struct ascii_objEx{
   char *data;
@@ -202,7 +208,9 @@ static struct option const long_options[] = {
     {"no-mirror", no_argument, NULL, 'n'},
     {"scrollbar", no_argument, NULL, 's'},
     {"random", no_argument, NULL, 'r'},
+#ifdef VTLOCK
     {"lock-terminal", no_argument, NULL, 'l'},
+#endif
     {"delay", required_argument, NULL, 'd'},
     {"ascii", required_argument, NULL, 'a'},
     {"object-speed", required_argument, NULL, 'o'},
@@ -212,7 +220,7 @@ static struct option const long_options[] = {
     {"version", no_argument, NULL, 'V'},
     {NULL, 0, NULL, 0}
 };
-  
+#ifdef VTLOCK
 void report_failed_login(char *user/*, char *pass*/){
   openlog("tss", LOG_PID | LOG_ODELAY, LOG_USER);
   /*syslog(LOG_NOTICE, "Failed login attempt with password \"%s\" for user \"%s\"", pass, user);*/
@@ -232,7 +240,7 @@ void restore_terminal(void){
   ioctl(vfd, VT_SETMODE, &ovtm);
   tcsetattr(STDIN_FILENO, TCSANOW, &oterm);
 }
-
+#endif
 int getloadavg(double loadavg[], int nelem);
 #ifndef BSD
  void usleep(unsigned long usec);
@@ -267,9 +275,10 @@ void cleanup(void){
     
   if(fd_ascii != NULL)
     fclose(fd_ascii);
-
+#ifdef VTLOCK
   if(vfd != -1)
     close(vfd);
+#endif
 
 }
 
@@ -310,14 +319,21 @@ void showcopyright(void){
 
 void usage(char *me){
   showver();
+#ifdef VTLOCK
   printf("Usage: %s [-s] [-r] [-l] [-n] [-h] [-V] "
 	 "[-d delay] [-a ascii]\n", me);
+#else
+  printf("Usage: %s [-s] [-r] [-n] [-h] [-V] "
+	 "[-d delay] [-a ascii]\n", me);
+#endif
 	 /*"[-d delay] [-a ascii] [-t script] [-u secs]\n", me);*/
   printf("Default: %s -d 120 -o .5 -e .1 -i 1 -a %s/default\n\n", me, DEFAULT_ASCII_DIR);
   printf("  -n, --no-delay              Disable ASCII mirroring\n");
   printf("  -s, --scrollbar             Show load average in a scrollbar\n");
   printf("  -r, --random                Choose random ascii file\n");
+#ifdef VTLOCK
   printf("  -l, --lock-terminal         Lock terminal\n");
+#endif
   printf("  -d, --delay=[delay]         Update every [delay] milliseconds\n");
   printf("  -a, --ascii=[ascii]         Use ascii [ascii]\n");
   printf("  -o, --object-speed=[speed]  Set ascii speed (0.001 - 1.00)\n");
@@ -331,7 +347,7 @@ void usage(char *me){
   printf("  -V, --version               Show version\n\n");
   showcopyright();
 }
-
+#ifdef VTLOCK
 void drawpercent(double value){
   double v_percent;
   double s_percent;
@@ -500,6 +516,7 @@ static struct passwd *my_getpwuid(uid_t uid){
 
   return pwd;
 }
+#endif
 
 void colormvprintw(int y, int x, char *buf){
   int i;
@@ -559,11 +576,13 @@ void perform_mirror(void){
 int main(int argc, char **argv){
 
   struct stat sc;
+#ifdef VTLOCK
   struct vt_mode vtm;
   struct passwd *pwd;
   static sigset_t sig;
   static struct sigaction sig_action;
   static struct termios term;
+#endif
 
   struct utsname _uname;
   struct nameEx{
@@ -629,11 +648,13 @@ int main(int argc, char **argv){
   mirror		= 1;
   current_color		= 8;
   file_set		= 0;
+#ifdef VTLOCK
   failed_logins		= 0;
   vfd			= -1;
   lock_delay		= 1; 		/* First failed pass delay in seconds */
-  name_count		= 1;
   lock			= 0;
+#endif
+  name_count		= 1;
   random		= 0;
   delay			= 120000;	/* Microseconds */
   scroll_delay		= 5;		/* Seconds */
@@ -645,12 +666,18 @@ int main(int argc, char **argv){
   sprintf(mirrorchr[0], "/\\()<>{}[]bd`'");
   sprintf(mirrorchr[1], "\\/)(><}{][db'`");
 
+#ifdef VTLOCK
   while( (i = getopt_long(argc, argv, "nsrld:a:o:e:i:Vh", long_options, NULL) ) != -1 )
+#else
+  while( (i = getopt_long(argc, argv, "nsrd:a:o:e:i:Vh", long_options, NULL) ) != -1 )
+#endif
     switch (i) {
     case 'n': mirror		= 0; break;
     case 's': name_count	= 2; break;
     case 'r': random		= 1; break;
+#ifdef VTLOCK
     case 'l': lock		= 1; break;
+#endif
     case 'd': delay = 1000 * atoi(optarg); break;
     case 'a':
 	      if(strlen(optarg) >= MAXPATH){
@@ -738,7 +765,7 @@ int main(int argc, char **argv){
   nodelay(stdscr, TRUE);
   noecho();
   attron(A_BOLD);
-
+#ifdef VTLOCK
   /* Init locking if enabled */
   if(lock){
 
@@ -812,10 +839,10 @@ int main(int argc, char **argv){
     tcsetattr(STDIN_FILENO, TCSANOW, &term);
 
   }
-
   /* Drop SUID */ 
   setuid(getuid());
   setgid(getgid());
+#endif
 
   /* check files and directories */
   if(!file_set){ /* Skip directory and file checks if user set ascii */
@@ -1102,25 +1129,29 @@ int main(int argc, char **argv){
     usleep(delay);
     
     if(getch() != EOF){
+#ifdef VTLOCK
       if(lock == 1)
 	busy = lock_screen(screen_width, screen_height);
       else
+#endif
 	busy = 0;
     }
 
   }
 
+#ifdef VTLOCK
   /* Restore signals and terminal if locked */
   if(lock){
     sigprocmask(SIG_SETMASK, &osig, NULL); /* Restore old signals */
     restore_terminal();
   }
+#endif
   
   endwin();
   cleanup();
-
+#ifdef VTLOCK
   if(failed_logins > 0)
     printf("%d failed login attempts.\n", failed_logins);
-
+#endif
   return 0;
 }
