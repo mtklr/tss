@@ -149,7 +149,9 @@
 #endif
 
 #define VERSION			"0.8.2"
-#define DEFAULT_ASCII_DIR	"/etc/tss/"
+#ifndef DEFAULT_ASCII_DIR
+ #define DEFAULT_ASCII_DIR	"/etc/tss/"
+#endif
 #define DEFAULT_ASCII		"default"
 #define MAX_ASCII_SIZE		1024000
 #define TIMEOUT			30
