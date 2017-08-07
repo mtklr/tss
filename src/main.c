@@ -920,8 +920,11 @@ int main(int argc, char **argv){
 	break;
       }
       if(special){
-	strncpy(ascii_obj.data, &ascii_obj.data[2], lof(fd_ascii) - 2);
-	ascii_obj.data[lof(fd_ascii) - 2] = '\0';
+	char *buf = calloc(lof(fd_ascii) - 2, 1);
+	strncpy(buf, &ascii_obj.data[2], lof(fd_ascii) - 2);
+	buf[lof(fd_ascii) - 2] = '\0';
+	strcpy(ascii_obj.data, buf);
+	free(buf);
       }
     }
   }
