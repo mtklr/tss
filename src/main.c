@@ -848,6 +848,7 @@ int main(int argc, char **argv){
   curs_set(0);
   raw();
   nodelay(stdscr, TRUE);
+  leaveok(stdscr, TRUE);
   noecho();
 #ifdef VTLOCK
   /* Init locking if enabled */
