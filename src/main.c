@@ -627,7 +627,7 @@ void perform_mirror(void){
       ascii_obj.line[i][b] = ascii_obj.mirror[a];
   }
 
-  /* Correct parralel characters */
+  /* Correct parallel characters */
   for(i = 0; i < ascii_obj.height; i++)
     for(a = 0; a < strlen(ascii_obj.line[i]); a++)
       for(b = 0; b < strlen(mirrorchr[0]); b++)
