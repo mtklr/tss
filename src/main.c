@@ -558,7 +558,7 @@ void perform_mirror(void){
 	a++;
       }
     for(a = 0, b = strlen(ascii_obj.mirror) - 1; 
-        a < strlen(ascii_obj.mirror), b >= 0; 
+        a < strlen(ascii_obj.mirror);
         a++, b--)
       ascii_obj.line[i][b] = ascii_obj.mirror[a];
   }
