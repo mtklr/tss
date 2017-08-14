@@ -849,7 +849,6 @@ int main(int argc, char **argv){
   raw();
   nodelay(stdscr, TRUE);
   noecho();
-  attron(A_BOLD);
 #ifdef VTLOCK
   /* Init locking if enabled */
   if(lock){
