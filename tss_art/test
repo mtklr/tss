@@ -1,0 +1,11 @@
+n0default   Rdefaultr   T8bright    Rbrightrt  8Nnormal
+1black     Rblackr     T1black     Rblackrt   8Sstandouts (black)
+2red       Rredr       T2red       Rredrt     8Uunderlineu
+3green     Rgreenr     T3green     Rgreenrt   8Rreverser
+4yellow    Ryellowr    T4yellow    Ryellowrt  8Kblinkk
+5blue      Rbluer      T5blue      Rbluert    8Ddimd
+6magenta   Rmagentar   T6magenta   Rmagentart 8Oboldo
+7cyan      Rcyanr      T7cyan      Rcyanrt    8Pprotectp
+8white     Rwhiter     T8white     Rwhitert   8Iinvisi    (invis)
+0+1+2+3+4+5+6+7+8+ R0 1 2 3 4 5 6 7 8 r T0+1+2+3+4+5+6+7+8+ R0 1 2 3 4 5 6 7 8 N
+Almkjtuvwqxnos`afg~,+.-hiopryz{|}a (acs)N
