@@ -28,7 +28,7 @@
  * 		- Better deinit on perrors
  * 		- (more) Security checks
  * 		- Cleaning up
- * 
+ *
  * BUGS:
  * 		- Slight misalignments between internal data and curses
  * 		- Floating point exception on init (Due to small termsize)
@@ -43,7 +43,7 @@
  *              - Read files after SUID drop (Fixes Debian bug #475747)
  *              - Drop SUID even if locking is not enabled (Fixed Debian "bug" #475736)
  *                This one was REALLY stupid.
- *              - Exit with EXIT_SUCCESS or EXIT_FAILURE 
+ *              - Exit with EXIT_SUCCESS or EXIT_FAILURE
  *              - Minor error report cleanups (severe_error now takes va_list)
  *              - Check if ascii file is a regular file
  * 	0.8.1
@@ -67,9 +67,9 @@
  * 	0.7.8.2
  * 		- flush stdin before getinput (Fixes odd "ghost keys" on input)
  *	0.7.8.1
- *		- Very minor bugfixes. has_colors() warning in code, 
+ *		- Very minor bugfixes. has_colors() warning in code,
  *	      	changes to help and INSTALL
- * 	0.7.8 
+ * 	0.7.8
  * 		- Commented out script exec code. Too lazy to do it.
  * 		- Mirroring enabled by default
  * 		- Added A_BOLD (Daemon now looks like in FreeBSD)
@@ -181,7 +181,7 @@ static char userpass[200];
 #endif
 char mirrorchr[2][15];
 char *scroll_buffer;
-  
+
 glob_t list;
 
 #ifdef VTLOCK
@@ -269,14 +269,14 @@ void cleanup(void){
     /* fprintf(stderr, "DEBUG: Freeing blkline %d (%db)\n", i, strlen(ascii_obj.blank[i]));*/
     free(ascii_obj.blank[i]);
   }
-    
+
   globfree(&list);
 
   if(ascii_obj.data != NULL)
     free(ascii_obj.data);
 
   free(scroll_buffer);
-    
+
   if(fd_ascii != NULL)
     fclose(fd_ascii);
 #ifdef VTLOCK
@@ -358,7 +358,7 @@ void drawpercent(double value){
 
   v_percent = 100 * value / TIMEOUT;
   s_percent = screen_height * v_percent / 100;
-  
+
   mvprintw((int)s_percent - 1, 0, " ");
   /*mvprintw((int)s_percent - 1, 1, "    ");
   mvprintw((int)s_percent, 1, "%.1f ", TIMEOUT - value);*/
@@ -382,12 +382,12 @@ char *getinput(void){
 
   /* In case we have garbage in our buffer */
   fflush(stdin);
-  
+
   timer_beg = tickcount();
   busy = 1;
   while(busy){
     key = getch();
-  
+
     timer_end = tickcount() - timer_beg;
     if(timer_end >= TIMEOUT)
       busy = 0;
@@ -422,7 +422,7 @@ int lock_screen(int w, int h){
   char *pwd;
   char text[128];
   char blank[128];
-  int centerx; 
+  int centerx;
   int centery;
   int result;
   int i;
@@ -431,7 +431,7 @@ int lock_screen(int w, int h){
   sprintf(text, "This screen has been locked by %s.", username);
   bzero(blank, 128);
   sprintf(blank,"Password:");
-  memset(&blank[9], 32, strlen(text) - 9); 
+  memset(&blank[9], 32, strlen(text) - 9);
   blank[strlen(text) + 1] = 0;
 
   centerx = (w - (strlen(text)/* - 1*/)) / 2;
@@ -453,10 +453,10 @@ int lock_screen(int w, int h){
   }
   mvaddch(centery, centerx, ACS_ULCORNER);
   mvaddch(centery + 3, centerx, ACS_LLCORNER);
-  
+
   mvprintw(centery + 1, centerx + 1, "%s", text);
   mvprintw(centery + 2, centerx + 1, "%s", blank);
-  
+
   /* Get input and check with password via crypt */
   pwd = getinput();
 
@@ -467,7 +467,7 @@ int lock_screen(int w, int h){
 
   bzero(pwd, strlen(pwd));
   free(pwd);
-      
+
   /* If the terminal is closed, we should exit */
   if(isatty(STDIN_FILENO) == 0){
     perror("isatty");
@@ -487,8 +487,8 @@ int lock_screen(int w, int h){
       sleep(1);
     }
     failed_logins++;
-  }    
-    
+  }
+
   clear();
   attroff(COLOR_PAIR(8));
   attron(A_BOLD);
@@ -508,7 +508,7 @@ static struct passwd *my_getpwuid(uid_t uid){
   if(!pwd)
     severe_error("getpwuid(%d) failed: %s\n", uid, strerror(errno));
 
-#ifndef BSD 
+#ifndef BSD
   /* Why the hell was I doing this? Shit. I forgot :| */
   sp = getspnam(pwd->pw_name);    /* Get pw via name instead of uid */
   if(sp)                          /* If it _worked_, */
@@ -620,7 +620,7 @@ void colormvprintw(int y, int x, char *buf){
 
 void perform_mirror(void){
   int i, a, b;
-	
+
   for(i = 0; i < ascii_obj.height; i++){
     strcpy(ascii_obj.mirror, ascii_obj.line[i]);
     /* Pre-flip color codes and char */
@@ -630,7 +630,7 @@ void perform_mirror(void){
 	ascii_obj.mirror[a + 1] = 27;
 	a++;
       }
-    for(a = 0, b = strlen(ascii_obj.mirror) - 1; 
+    for(a = 0, b = strlen(ascii_obj.mirror) - 1;
         a < strlen(ascii_obj.mirror);
         a++, b--)
       ascii_obj.line[i][b] = ascii_obj.mirror[a];
@@ -764,21 +764,21 @@ int main(int argc, char **argv){
 	      file_set		= 1;
 	      strcpy(file_name, optarg);
 	      break;
-    case 'o': 
+    case 'o':
 	      if(atof(optarg) < .001 || atof(optarg) > 1.00){
 		usage(argv[0]);
                 return EXIT_FAILURE;
 	      }else
 		ascii_obj.speed = atof(optarg);
 	      break;
-    case 'e': 
+    case 'e':
 	      if(atof(optarg) < .001 || atof(optarg) > 1.00){
 		usage(argv[0]);
                 return EXIT_FAILURE;
 	      }else
 		name[UNAME].speed = atof(optarg);
 	      break;
-    case 'i': 
+    case 'i':
 	      if(atof(optarg) < .001 || atof(optarg) > 1.00){
 		usage(argv[0]);
                 return EXIT_FAILURE;
@@ -795,11 +795,11 @@ int main(int argc, char **argv){
 
   bzero(glob_string, MAXPATH);
   sprintf(glob_string, "%s*", DEFAULT_ASCII_DIR);
-  
+
   if(default_scrolltext == 1){
     scroll_buffer = calloc(37, 1); /* Max load */
     getloadavg(loadavg, 3);
-    sprintf(scroll_buffer, "Load average: %.2f, %.2f, %.2f ", 
+    sprintf(scroll_buffer, "Load average: %.2f, %.2f, %.2f ",
 	    loadavg[0],
 	    loadavg[1],
 	    loadavg[2]);
@@ -811,9 +811,9 @@ int main(int argc, char **argv){
   if(uname(&_uname) == -1)
     severe_error("uname() failed.");
 
-  sprintf(name[UNAME].text, "%s %s %s", 
-	  _uname.sysname, 
-	  _uname.nodename, 
+  sprintf(name[UNAME].text, "%s %s %s",
+	  _uname.sysname,
+	  _uname.nodename,
 	  _uname.release);
 
   bzero(name[INFO].text, 128);
@@ -844,7 +844,7 @@ int main(int argc, char **argv){
     init_pair(15, COLOR_CYAN + BRIGHT, COLOR_BLACK);
     init_pair(16, COLOR_WHITE + BRIGHT, COLOR_BLACK);
   }
-  
+
   curs_set(0);
   raw();
   nodelay(stdscr, TRUE);
@@ -862,7 +862,7 @@ int main(int argc, char **argv){
 
     sprintf(username, "%s", pwd->pw_name);
     sprintf(userpass, "%s", pwd->pw_passwd);
-    
+
     if(strlen(userpass) < 13) /* Pass strings are always >= 13b */
       severe_error("The password for %s is invalid, "
                    "I can't lock the screen.\n", username);
@@ -906,7 +906,7 @@ int main(int argc, char **argv){
     vtm.mode		= VT_PROCESS;
     vtm.relsig		= SIGUSR1;      /* Handled by vt_release() */
     vtm.acqsig		= SIGUSR1;
-    vtm.frsig		= SIGUSR1;  
+    vtm.frsig		= SIGUSR1;
 
     if(ioctl(vfd, VT_SETMODE, &vtm)) /* Set it */
       severe_error("VT_SETMODE failed: %s", strerror(errno));
@@ -924,7 +924,7 @@ int main(int argc, char **argv){
     tcsetattr(STDIN_FILENO, TCSANOW, &term);
 
   }
-  /* Drop SUID */ 
+  /* Drop SUID */
   setuid(getuid());
   setgid(getgid());
 #endif
@@ -944,7 +944,7 @@ int main(int argc, char **argv){
 
     for(i = 0; i < list.gl_pathc; i++){
       if(strncmp(&list.gl_pathv[i][strlen(list.gl_pathv[i]) - 1], "/", 1) == 0)
-	severe_error("Directories are not allowed in \"%s\".\n", 
+	severe_error("Directories are not allowed in \"%s\".\n",
                      DEFAULT_ASCII_DIR);
     }
 
@@ -960,20 +960,20 @@ int main(int argc, char **argv){
   }
 
   if(stat(file_name, &sc) == -1){
-    severe_error("Cannot stat \"%s\": %s\n", 
+    severe_error("Cannot stat \"%s\": %s\n",
                  file_name,
                  strerror(errno));
   }else{
     if(! S_ISREG(sc.st_mode))
       severe_error("\"%s\" is not a regular file.\n", file_name);
   }
- 
+
   fd_ascii = fopen(file_name, "rb");
   if(!fd_ascii)
-    severe_error("\"%s\" could not be read: %s\n", 
+    severe_error("\"%s\" could not be read: %s\n",
                  file_name,
                  strerror(errno));
- 
+
   if(lof(fd_ascii) == 0)
     severe_error("\"%s\" is empty.\n", file_name);
 
@@ -991,15 +991,15 @@ int main(int argc, char **argv){
   if(lof(fd_ascii) > 2){
     if(ascii_obj.data[0] == 27){
       switch(ascii_obj.data[1]){
-      case 'n': 
+      case 'n':
 	mirror = 0;
 	special = 1;
 	break;
-      case 'l': 
+      case 'l':
 	forced_direction = -1;
 	special = 1;
 	break;
-      case 'r': 
+      case 'r':
 	forced_direction = 1;
 	special = 1;
 	break;
@@ -1013,10 +1013,10 @@ int main(int argc, char **argv){
       }
     }
   }
-  	 
+
   fclose(fd_ascii);
   fd_ascii = NULL;
-  
+
   /* Load object in to buffers */
   ascii_obj.width	= 0;
   ascii_obj.height	= 0;
@@ -1026,8 +1026,8 @@ int main(int argc, char **argv){
     if(ascii_obj.data[i] == '\n'){
       /*ascii_obj.line[ascii_obj.height] = calloc(offset + 1, 1);*/
       ascii_obj.line[ascii_obj.height] = calloc(512, 1);
-      memcpy(ascii_obj.line[ascii_obj.height], 
-	     &ascii_obj.data[i - offset], 
+      memcpy(ascii_obj.line[ascii_obj.height],
+	     &ascii_obj.data[i - offset],
 	     offset);
       obj_check[ascii_obj.height++] = offset;
       offset = 0;
@@ -1051,7 +1051,7 @@ int main(int argc, char **argv){
     for(a = 0; a <= i; a++)
       if(obj_check[a] > ascii_obj.width)
 	ascii_obj.width = obj_check[a];
-  
+
   for(i = 0; i < ascii_obj.height; i++)
     for(a = 0; a <= i; a++)
       if(ansi_check[a] > ascii_obj.width_real)
@@ -1072,7 +1072,7 @@ int main(int argc, char **argv){
     ascii_obj.blank[i] = calloc(ascii_obj.width + 1, 1);
     memset(ascii_obj.blank[i], 32, ascii_obj.width);
     ascii_obj.blank[i][ascii_obj.width] = '\0';
-    
+
   }
 
   /* FIXME: Needs to be in same place as nonexistent resizing handler */
@@ -1109,10 +1109,10 @@ int main(int argc, char **argv){
     name[i].x			= 1 + rand()%(name[i].max_x - 2);
     name[i].y			= 1 + rand()%(name[i].max_y - 2);
   }
-    
+
   name[UNAME].direction_x	= rand()%2?-name[UNAME].speed:name[UNAME].speed;
   name[UNAME].direction_y	= rand()%2?-name[UNAME].speed:name[UNAME].speed;
-  
+
   name[INFO].direction_x	= rand()%2?-name[INFO].speed:name[INFO].speed;
   name[INFO].direction_y	= rand()%2?-name[INFO].speed:name[INFO].speed;
 
@@ -1150,38 +1150,38 @@ int main(int argc, char **argv){
 
     for(i = 0; i < ascii_obj.height; i++)
       mvprintw((ascii_obj.y + i), ascii_obj.x, "%s", ascii_obj.blank[i]);
-    
+
     /* Update vars */
     for(i = 0; i < name_count; i++){
       name[i].x += name[i].direction_x;
       name[i].y += name[i].direction_y;
-   
+
       if(name[i].x < 1 || name[i].x >= name[i].max_x)
 	name[i].direction_x = -name[i].direction_x;
- 
+
       if(name[i].y < 1 || name[i].y >= name[i].max_y)
 	name[i].direction_y = -name[i].direction_y;
     }
 
     ascii_obj.x += ascii_obj.direction_x;
     ascii_obj.y += ascii_obj.direction_y;
-    
+
     if(ascii_obj.x < 1 || ascii_obj.x >= ascii_obj.max_x){
       ascii_obj.direction_x = -ascii_obj.direction_x;
-	
+
       /* Mirror ascii */
       if(mirror)
 	perform_mirror();
-      
+
     }
-    
+
     if(ascii_obj.y < 1 || ascii_obj.y >= ascii_obj.max_y)
       ascii_obj.direction_y = -ascii_obj.direction_y;
 
     /* Draw */
     for(i = 0; i < ascii_obj.height; i++)
       colormvprintw((ascii_obj.y + i), ascii_obj.x, ascii_obj.line[i]);
-    
+
     for(i = 0; i < name_count; i++)
       mvprintw(name[i].y, name[i].x, "%s", name[i].text);
 
@@ -1199,7 +1199,7 @@ int main(int argc, char **argv){
 	  /* Get new text */
 	  if(default_scrolltext == 1){
 	    getloadavg(loadavg, 3);
-	    sprintf(scroll_buffer, "Load average: %.2f, %.2f, %.2f ", 
+	    sprintf(scroll_buffer, "Load average: %.2f, %.2f, %.2f ",
 		    loadavg[0],
 		    loadavg[1],
 		    loadavg[2]);
@@ -1209,13 +1209,13 @@ int main(int argc, char **argv){
 	  scroll_count = 0;
 	  schedule_scroll_replace = 0;
 	}
-	    
+
 	scroll_count = 1;
       }
     }
 
     usleep(delay);
-    
+
     if(getch() != EOF){
 #ifdef VTLOCK
       if(lock == 1)
@@ -1234,7 +1234,7 @@ int main(int argc, char **argv){
     restore_terminal();
   }
 #endif
-  
+
   endwin();
   cleanup();
 #ifdef VTLOCK
