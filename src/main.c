@@ -526,18 +526,82 @@ void colormvprintw(int y, int x, char *buf){
   move(y, x);
 
   for(i = 0; i < strlen(buf); i++){
-    if(buf[i] == 27){
 
-      if(buf[i + 2] == 27)
-	while(buf[i + 2] == 27)
-	  i += 2;
-	
-      attroff(COLOR_PAIR(current_color));
-      current_color = buf[i + 1] - 48;
-      attron(COLOR_PAIR(current_color));
-      
-      i += 2;
-
+	while (buf[i] == 27) {
+		if (buf[i + 1] - 48 < 9) {
+			/* Color escape code. */
+			attroff(COLOR_PAIR(current_color));
+			current_color = buf[i + 1] - 48;
+			attron(COLOR_PAIR(current_color));
+		} else {
+			/* Attribute escape code. */
+			/* Uppercase turns on, lowercase turns off.
+			 * Art that "flips" needs escape codes on both sides
+			 * of each line, so they display properly from either
+			 * side. */
+			switch (buf[i + 1]) {
+				case 'A':
+					attron(A_ALTCHARSET);
+					break;
+				case 'a':
+					attroff(A_ALTCHARSET);
+					break;
+				case 'B':
+					attron(A_BOLD);
+					break;
+				case 'b':
+					attroff(A_BOLD);
+					break;
+				case 'D':
+					attron(A_DIM);
+					break;
+				case 'd':
+					attroff(A_DIM);
+					break;
+				case 'I':
+					attron(A_INVIS);
+					break;
+				case 'i':
+					attroff(A_INVIS);
+					break;
+				case 'K':
+					attron(A_BLINK);
+					break;
+				case 'k':
+					attroff(A_BLINK);
+					break;
+				case 'N':
+					attrset(A_NORMAL); /* turn off all */
+					break;
+				case 'P':
+					attron(A_PROTECT);
+					break;
+				case 'p':
+					attroff(A_PROTECT);
+					break;
+				case 'R':
+					attron(A_REVERSE);
+					break;
+				case 'r':
+					attroff(A_REVERSE);
+					break;
+				case 'S':
+					attron(A_STANDOUT);
+					break;
+				case 's':
+					attroff(A_STANDOUT);
+					break;
+				case 'U':
+					attron(A_UNDERLINE);
+					break;
+				case 'u':
+					attroff(A_UNDERLINE);
+					break;
+				default:
+					break;
+			}
+		}
+		i += 2;
     }
     printw("%c", buf[i]);
 
