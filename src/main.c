@@ -631,7 +631,9 @@ void perform_mirror(void){
   for(i = 0; i < ascii_obj.height; i++)
     for(a = 0; a < strlen(ascii_obj.line[i]); a++)
       for(b = 0; b < strlen(mirrorchr[0]); b++)
-	if(ascii_obj.line[i][a] == mirrorchr[0][b]){
+	/* Only correct if it's not preceded by escape. */
+	if(ascii_obj.line[i][a-1] != 27 &&
+	    ascii_obj.line[i][a] == mirrorchr[0][b]){
 	  ascii_obj.line[i][a] = mirrorchr[1][b];
 	  break;
 	}
