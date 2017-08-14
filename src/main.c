@@ -163,6 +163,8 @@
 #define UNAME			0
 #define INFO			1
 
+#define BRIGHT 8
+
 #ifdef VTLOCK
 int lock_delay;
 int failed_logins;
@@ -522,7 +524,7 @@ static struct passwd *my_getpwuid(uid_t uid){
 
 void colormvprintw(int y, int x, char *buf){
   int i;
-
+  int bright = 0;
   move(y, x);
 
   for(i = 0; i < strlen(buf); i++){
@@ -531,7 +533,7 @@ void colormvprintw(int y, int x, char *buf){
 		if (buf[i + 1] - 48 < 9) {
 			/* Color escape code. */
 			attroff(COLOR_PAIR(current_color));
-			current_color = buf[i + 1] - 48;
+			current_color = buf[i + 1] - 48 + bright;
 			attron(COLOR_PAIR(current_color));
 		} else {
 			/* Attribute escape code. */
@@ -591,6 +593,12 @@ void colormvprintw(int y, int x, char *buf){
 				case 's':
 					attroff(A_STANDOUT);
 					break;
+				case 'T':
+					bright = BRIGHT;
+					break;
+				case 't':
+					bright = 0;
+					break;
 				case 'U':
 					attron(A_UNDERLINE);
 					break;
@@ -606,6 +614,7 @@ void colormvprintw(int y, int x, char *buf){
     printw("%c", buf[i]);
 
   }
+  bright = 0;
 
 }
 
@@ -826,6 +835,14 @@ int main(int argc, char **argv){
     init_pair(6, COLOR_MAGENTA,	COLOR_BLACK);
     init_pair(7, COLOR_CYAN,	COLOR_BLACK);
     init_pair(8, COLOR_WHITE,	COLOR_BLACK);
+    init_pair(9, COLOR_BLACK + BRIGHT, COLOR_BLACK);
+    init_pair(10, COLOR_RED + BRIGHT, COLOR_BLACK);
+    init_pair(11, COLOR_GREEN + BRIGHT, COLOR_BLACK);
+    init_pair(12, COLOR_YELLOW + BRIGHT, COLOR_BLACK);
+    init_pair(13, COLOR_BLUE + BRIGHT, COLOR_BLACK);
+    init_pair(14, COLOR_MAGENTA + BRIGHT, COLOR_BLACK);
+    init_pair(15, COLOR_CYAN + BRIGHT, COLOR_BLACK);
+    init_pair(16, COLOR_WHITE + BRIGHT, COLOR_BLACK);
   }
   
   curs_set(0);
