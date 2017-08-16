@@ -332,7 +332,7 @@ void usage(char *me){
 #endif
 	 /*"[-d delay] [-a ascii] [-t script] [-u secs]\n", me);*/
   printf("Default: %s -d 120 -o .5 -e .1 -i 1 -a %s/default\n\n", me, DEFAULT_ASCII_DIR);
-  printf("  -n, --no-delay              Disable ASCII mirroring\n");
+  printf("  -n, --no-mirror             Disable ASCII mirroring\n");
   printf("  -s, --scrollbar             Show load average in a scrollbar\n");
   printf("  -r, --random                Choose random ascii file\n");
 #ifdef VTLOCK
