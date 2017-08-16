@@ -215,6 +215,7 @@ static struct option const long_options[] = {
 #ifdef VTLOCK
     {"lock-terminal", no_argument, NULL, 'l'},
 #endif
+    {"uname", no_argument, NULL, 'u'},
     {"delay", required_argument, NULL, 'd'},
     {"ascii", required_argument, NULL, 'a'},
     {"object-speed", required_argument, NULL, 'o'},
@@ -338,6 +339,7 @@ void usage(char *me){
 #ifdef VTLOCK
   printf("  -l, --lock-terminal         Lock terminal\n");
 #endif
+  printf("  -u, --uname                 Show system info\n");
   printf("  -d, --delay=[delay]         Update every [delay] milliseconds\n");
   printf("  -a, --ascii=[ascii]         Use ascii [ascii]\n");
   printf("  -o, --object-speed=[speed]  Set ascii speed (0.001 - 1.00)\n");
@@ -693,6 +695,8 @@ int main(int argc, char **argv){
   short lock;
   short schedule_scroll_replace;
   short default_scrolltext;
+  short do_uname;
+  short do_scroll;
 
   int obj_check[MAXLINES];
   int ansi_check[MAXLINES];
@@ -731,11 +735,14 @@ int main(int argc, char **argv){
   lock_delay		= 1; 		/* First failed pass delay in seconds */
   lock			= 0;
 #endif
-  name_count		= 1;
+  name_count		= 0;
   random		= 0;
   delay			= 120000;	/* Microseconds */
   scroll_delay		= 5;		/* Seconds */
   default_scrolltext 	= 1;
+  do_scroll		= 0;
+  do_uname		= 0;
+
   bzero(file_name, MAXPATH);
   bzero(ascii_obj.mirror, MAXLINES);
 
@@ -744,17 +751,18 @@ int main(int argc, char **argv){
   sprintf(mirrorchr[1], "\\/)(><}{][db'`");
 
 #ifdef VTLOCK
-  while( (i = getopt_long(argc, argv, "nsrld:a:o:e:i:Vh", long_options, NULL) ) != -1 )
+  while( (i = getopt_long(argc, argv, "nsrlud:a:o:e:i:Vh", long_options, NULL) ) != -1 )
 #else
-  while( (i = getopt_long(argc, argv, "nsrd:a:o:e:i:Vh", long_options, NULL) ) != -1 )
+  while( (i = getopt_long(argc, argv, "nsrud:a:o:e:i:Vh", long_options, NULL) ) != -1 )
 #endif
     switch (i) {
     case 'n': mirror		= 0; break;
-    case 's': name_count	= 2; break;
+    case 's': do_scroll		= 1; break;
     case 'r': random		= 1; break;
 #ifdef VTLOCK
     case 'l': lock		= 1; break;
 #endif
+    case 'u': do_uname		= 1; break;
     case 'd': delay = 1000 * atoi(optarg); break;
     case 'a':
 	      if(strlen(optarg) >= MAXPATH){
@@ -1096,6 +1104,11 @@ int main(int argc, char **argv){
   if(screen_too_small)
     severe_error("This terminal is currently too small.\n");
 
+  if (do_uname)
+    name_count = 1;
+  if (do_scroll)
+    name_count = 2;
+
   for(i = 0; i < name_count; i++){
     /* Set blanking areas */
     bzero(name[i].blank, 128);
@@ -1182,8 +1195,12 @@ int main(int argc, char **argv){
     for(i = 0; i < ascii_obj.height; i++)
       colormvprintw((ascii_obj.y + i), ascii_obj.x, ascii_obj.line[i]);
 
-    for(i = 0; i < name_count; i++)
-      mvprintw(name[i].y, name[i].x, "%s", name[i].text);
+    if (name_count > 0) {
+	    for(i = 0; i < name_count; i++) {
+	      if (!do_uname) i++;
+	      mvprintw(name[i].y, name[i].x, "%s", name[i].text);
+	    }
+    }
 
     refresh();
 
