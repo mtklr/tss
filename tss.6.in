@@ -1,0 +1,185 @@
+.\" Copyright 2006, Kristian Gunstone.
+.\" Licensed under the GNU General Public License version 2 or later, see
+.\" http://gnu.org/licenses/gpl.html
+.TH TSS 6 "2006"
+.SH NAME
+tss \- terminal screensaver
+.SH SYNOPSIS
+\fBtss\fP [\fIoptions\fP...] [\fB\-a\fP\ \fIfile\fP]
+.SH DESCRIPTION
+\fBtss\fP is a terminal screensaver for GNU/Linux and FreeBSD.
+.PP
+The following options are available:
+.TP
+\fB\-a\fP\ \fIfile\fP,\ \fB\-\-ascii\fP=\fIfile\fP
+Use ASCII file \fIfile\fP.
+.TP
+\fB\-d\fP\ \fIdelay\fP,\ \fB\-\-delay=\fP\fIdelay\fP
+Update every \fIdelay\fP milliseconds.
+.TP
+\fB\-e\fP\ \fIspeed\fP,\ \fB\-\-uname\-speed=\fP\fIspeed\fP
+Set uname speed to \fIspeed\fP (0.001 - 1.00).
+.TP
+\fB\-h\fP,\ \fB\-\-help\fP
+Print a brief help message.
+.TP
+\fB\-i\fP\ \fIspeed\fP,\ \fB\-\-info\-speed=\fP\fIspeed\fP
+Set info speed to \fIspeed\fP (0.001 - 1.00).
+.\" .TP
+.\"\fB\-l\fP,\ \fB\-\-lock\-terminal\fP
+.\"Lock terminal.
+.TP
+\fB\-n\fP,\ \fB\-\-no\-mirror\fP
+Disable ASCII mirroring.
+.TP
+\fB\-o\fP\ \fIspeed\fP,\ \fB\-\-object\-speed=\fP\fIspeed\fP
+Set ASCII speed to \fIspeed\fP (0.001 - 1.00).
+.TP
+\fB\-r\fP,\ \fB\-\-random\fP
+Choose a random ASCII file from \fI@datadir@\fP, or \fI~/.tss\fP if the former
+path does not exist or contain any files.
+.TP
+\fB\-s\fP,\ \fB\-\-scrollbar\fP
+Show load average in a scrollbar.
+.TP
+\fB\-V\fP,\ \fB\-\-version\fP
+Print version information and exit.
+.SH COLORS
+Any character can be colored by prepending \fC<Esc>\fP plus a color value
+before the character. The color will be set until an other color code is set.
+If several escape sequences follow each other, the last seen is used.
+.PP
+Colors are standard VT120, as initialised by curses:
+.IP
+.nf
+1. Red
+2. Green
+3. Black
+4. Yellow
+5. Blue
+6. Magenta
+7. Cyan
+8. White
+.fi
+.PP
+Example:
+.IP
+.nf
+\fC
+^[5Hello,
+^[4This is a demo^[8
+\fP
+.fi
+.PP
+This will make "Hello," blue, and "This is a demo" yellow.
+.PP
+Since the colors will "float" until an other color is interpreted, we can
+manipulate the color of the uname and scrollbox from the ASCII. The \fC^[8\fP
+at the end will make these objects white.
+.PP
+In order for color mirroring to work properly, make sure to repeat colors so
+that they will be readable from both directions.
+.PP
+Example:
+.IP
+.nf
+\fC
+AAAA^[8^[2hello%[2^[8AAAA
+\fP
+.fi
+.PP
+This will make the text "hello" red in both directions.
+.PP
+The default color is 8 (white).
+.SH ATTRIBUTES
+Curses attributes like bold, underline, etc. are also supported by escape codes
+followed by a letter. Uppercase turns on the attribute, lowercase turns it off:
+.IP
+.nf
+A. Alternate character set
+B. Bold
+D. Dim
+I. Invisible
+K. Blink
+N. Normal
+P. Protect
+R. Reverse
+S. Standout
+U. Underline
+.fi
+.PP
+As with color mirroring, the attributes should be repeated on both sides of
+each line so they are correct in either direction.
+.PP
+Example:
+.IP
+.nf
+\fC
+^[b^[B^[u^[Uevol^[U^[u^[B^[b
+\fP
+.fi
+.PP
+"Normal" turns off all attributes. Not all attributes are supported on all
+systems.
+.SH MIRRORING
+\fBtss\fP can flip a buffer and correct characters which have substitutes for
+the opposite direction. This usually turns out quite nicely with most ASCII
+art.
+.PP
+\fBtss\fP supports automatic ASCII padding since v0.7.8.4, so there is no
+longer any need to manually pad out ASCII with spaces in order for mirroring to
+work properly.
+.SH DIRECTION / NOMIRROR
+If you want an ASCII file to start in a specific direction, you can do this by
+prepending \fC<Esc>\fP plus the letter "l" or "r" after it in the beginning of
+the file.
+.PP
+Example:
+.IP
+.nf
+\fC
+^[lThis is a demo
+\fP
+.fi
+.PP
+If you do not want the ASCII file to mirror at all, do the same as above but
+with a "n" after \fC<Esc>\fP.
+.\".SH LOCKING
+.\".PP
+.\"For locking (option \fB\-l\fP or \fB\-\-lock\-terminal\fP) to work, this
+.\"program requires suid. To do so,
+.\".IP
+.\".nf
+.\"\fC
+.\"su
+.\"make
+.\"chmod 4555 tss
+.\"exit
+.\"\fP
+.\".fi
+.\".PP
+.\"If \fBtss\fP is called with -l in a VT, it will not be possible to shut it down
+.\"without entering the correct password.
+.\".PP
+.\"Be careful!
+.SH NOTE
+Please note that \fBtss\fP is discontinued and deemed unsafe.
+.SH FILES
+.PP
+.nf
+\fI@datadir@/*\fP
+\fI~/.tss/*\fP
+.fi
+.SH AUTHOR
+.PP
+.nf
+https://github.com/gammy/tss
+Copyright (C) 2006 Kristian Gunstone
+.fi
+.PP
+.nf
+Locking and shadow password retrieval code based on vlock 1.3
+Copyright (C) 1994 Michael K. Johnson and Marek
+.fi
+.SH SEE ALSO
+curs_attr(3), curs_color(3)
