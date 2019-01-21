@@ -209,6 +209,8 @@ struct ascii_objEx{
 } ascii_obj;
 
 static struct option const long_options[] = {
+    {"black", no_argument, NULL, 'b'},
+    {"black16", no_argument, NULL, 'B'},
     {"no-mirror", no_argument, NULL, 'n'},
     {"scrollbar", no_argument, NULL, 's'},
     {"random", no_argument, NULL, 'r'},
@@ -325,14 +327,16 @@ void showcopyright(void){
 void usage(char *me){
   showver();
 #ifdef VTLOCK
-  printf("Usage: %s [-s] [-r] [-l] [-n] [-h] [-V] "
+  printf("Usage: %s [-s] [-r] [-l] [-B | -b] [-n] [-h] [-V] "
 	 "[-d delay] [-a ascii]\n", me);
 #else
-  printf("Usage: %s [-s] [-r] [-n] [-h] [-V] "
+  printf("Usage: %s [-s] [-r] [-B | -b] [-n] [-h] [-V] "
 	 "[-d delay] [-a ascii]\n", me);
 #endif
 	 /*"[-d delay] [-a ascii] [-t script] [-u secs]\n", me);*/
   printf("Default: %s -d 120 -o .5 -e .1 -i 1 -a %s/default\n\n", me, DEFAULT_ASCII_DIR);
+  printf("  -B, --black16               Set background to color 16 black\n");
+  printf("  -b, --black                 Set background to ANSI black\n");
   printf("  -n, --no-mirror             Disable ASCII mirroring\n");
   printf("  -s, --scrollbar             Show load average in a scrollbar\n");
   printf("  -r, --random                Choose random ascii file\n");
@@ -688,6 +692,7 @@ int main(int argc, char **argv){
   short special;
   short forced_direction;
   short file_set;
+  short bgcolor;
   short mirror;
   short random;
   short busy;
@@ -726,6 +731,7 @@ int main(int argc, char **argv){
   ascii_obj.speed	= 1.0;
   forced_direction	= 0;
   special		= 0;
+  bgcolor		= -1;
   mirror		= 1;
   current_color		= 8;
   file_set		= 0;
@@ -751,11 +757,13 @@ int main(int argc, char **argv){
   sprintf(mirrorchr[1], "\\/)(><}{][db'`");
 
 #ifdef VTLOCK
-  while( (i = getopt_long(argc, argv, "nsrlud:a:o:e:i:Vh", long_options, NULL) ) != -1 )
+  while( (i = getopt_long(argc, argv, "bBnsrlud:a:o:e:i:Vh", long_options, NULL) ) != -1 )
 #else
-  while( (i = getopt_long(argc, argv, "nsrud:a:o:e:i:Vh", long_options, NULL) ) != -1 )
+  while( (i = getopt_long(argc, argv, "bBnsrud:a:o:e:i:Vh", long_options, NULL) ) != -1 )
 #endif
     switch (i) {
+    case 'b': bgcolor = COLOR_BLACK; break;
+    case 'B': bgcolor		= 16; break;
     case 'n': mirror		= 0; break;
     case 's': do_scroll		= 1; break;
     case 'r': random		= 1; break;
@@ -835,22 +843,24 @@ int main(int argc, char **argv){
 
   if(has_colors()){
     start_color(); /* VT100 Color init */
-    init_pair(1, COLOR_BLACK,	COLOR_BLACK);
-    init_pair(2, COLOR_RED,	COLOR_BLACK);
-    init_pair(3, COLOR_GREEN,	COLOR_BLACK);
-    init_pair(4, COLOR_YELLOW,	COLOR_BLACK);
-    init_pair(5, COLOR_BLUE,	COLOR_BLACK);
-    init_pair(6, COLOR_MAGENTA,	COLOR_BLACK);
-    init_pair(7, COLOR_CYAN,	COLOR_BLACK);
-    init_pair(8, COLOR_WHITE,	COLOR_BLACK);
-    init_pair(9, COLOR_BLACK + BRIGHT, COLOR_BLACK);
-    init_pair(10, COLOR_RED + BRIGHT, COLOR_BLACK);
-    init_pair(11, COLOR_GREEN + BRIGHT, COLOR_BLACK);
-    init_pair(12, COLOR_YELLOW + BRIGHT, COLOR_BLACK);
-    init_pair(13, COLOR_BLUE + BRIGHT, COLOR_BLACK);
-    init_pair(14, COLOR_MAGENTA + BRIGHT, COLOR_BLACK);
-    init_pair(15, COLOR_CYAN + BRIGHT, COLOR_BLACK);
-    init_pair(16, COLOR_WHITE + BRIGHT, COLOR_BLACK);
+    use_default_colors();
+    init_pair(1, COLOR_BLACK,	bgcolor);
+    init_pair(2, COLOR_RED,	bgcolor);
+    init_pair(3, COLOR_GREEN,	bgcolor);
+    init_pair(4, COLOR_YELLOW,	bgcolor);
+    init_pair(5, COLOR_BLUE,	bgcolor);
+    init_pair(6, COLOR_MAGENTA,	bgcolor);
+    init_pair(7, COLOR_CYAN,	bgcolor);
+    init_pair(8, COLOR_WHITE,	bgcolor);
+    init_pair(9, COLOR_BLACK + BRIGHT, bgcolor);
+    init_pair(10, COLOR_RED + BRIGHT, bgcolor);
+    init_pair(11, COLOR_GREEN + BRIGHT, bgcolor);
+    init_pair(12, COLOR_YELLOW + BRIGHT, bgcolor);
+    init_pair(13, COLOR_BLUE + BRIGHT, bgcolor);
+    init_pair(14, COLOR_MAGENTA + BRIGHT, bgcolor);
+    init_pair(15, COLOR_CYAN + BRIGHT, bgcolor);
+    init_pair(16, COLOR_WHITE + BRIGHT, bgcolor);
+    bkgd(COLOR_PAIR(8));
   }
 
   curs_set(0);
