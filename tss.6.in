@@ -52,9 +52,9 @@ If several escape sequences follow each other, the last seen is used.
 Colors are standard VT120, as initialised by curses:
 .IP
 .nf
-1. Red
-2. Green
-3. Black
+1. Black
+2. Red
+3. Green
 4. Yellow
 5. Blue
 6. Magenta
